@@ -6,6 +6,7 @@ import (
 	"shortlink/src/helper/utils"
 	"shortlink/src/model"
 	"shortlink/src/services"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sarulabs/di"
@@ -14,6 +15,7 @@ import (
 type ShortLinkController interface {
 	AddShortLink(ctx *fiber.Ctx) error
 	GetLink(ctx *fiber.Ctx) error
+	GetAllData(ctx *fiber.Ctx) error
 }
 
 type ShortLinkControllerImpl struct {
@@ -31,7 +33,7 @@ func (c *ShortLinkControllerImpl) GetLink(ctx *fiber.Ctx) error {
 	params.Id = ctx.Params("id")
 	validationErr := utils.Validation(*params)
 	if validationErr != nil {
-		return utils.ResponseError(ctx, validationErr[0], http.StatusBadRequest)
+		return utils.ResponseError(ctx, *validationErr[0], http.StatusBadRequest)
 	}
 
 	result, err := c.Service.ShortLink.GetData(ctx.Context(), params.Id)
@@ -56,7 +58,7 @@ func (c *ShortLinkControllerImpl) AddShortLink(ctx *fiber.Ctx) error {
 
 	validationErr := utils.Validation(*body)
 	if validationErr != nil {
-		return utils.ResponseError(ctx, validationErr[0], http.StatusBadRequest)
+		return utils.ResponseError(ctx, *validationErr[0], http.StatusBadRequest)
 	}
 
 	fmt.Println(body)
@@ -67,4 +69,17 @@ func (c *ShortLinkControllerImpl) AddShortLink(ctx *fiber.Ctx) error {
 	}
 
 	return utils.ResponseSuccess(ctx, result, "Success Add Short Link", http.StatusCreated)
+}
+
+func (c *ShortLinkControllerImpl) GetAllData(ctx *fiber.Ctx) error {
+	// Testing Response Pagination
+	data := []model.ShortLink{{Id: "123", Link: "http://googla.com", CreatedAt: time.Now()}}
+	meta := utils.ResponseMeta{
+		Page:        1,
+		Limit:       10,
+		TotalPage:   5,
+		TotalRecord: len(data),
+	}
+
+	return utils.ResponsePagination(ctx, data, "Success Get All Data", meta, http.StatusOK)
 }

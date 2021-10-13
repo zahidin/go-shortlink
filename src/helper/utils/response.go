@@ -11,12 +11,19 @@ type ResponseData struct {
 	Error interface{} `json:"error"`
 }
 
+type ResponseMeta struct {
+	Page        int `json:"page"`
+	Limit       int `json:"limit"`
+	TotalPage   int `json:"totalPage"`
+	TotalRecord int `json:"totalRecord"`
+}
+
 type BaseResponseModel struct {
-	Success bool        `json:"success"`
-	Data    interface{} `json:"data"`
-	Message interface{} `json:"message"`
-	Code    int         `json:"code"`
-	Meta    interface{} `json:"meta,omitempty"`
+	Success bool          `json:"success"`
+	Data    interface{}   `json:"data"`
+	Message interface{}   `json:"message"`
+	Code    int           `json:"code"`
+	Meta    *ResponseMeta `json:"meta,omitempty"`
 }
 
 func ResponseSuccess(ctx *fiber.Ctx, data interface{}, message string, code int) error {
@@ -44,5 +51,22 @@ func ResponseError(ctx *fiber.Ctx, err error, code int) error {
 		Code:    code,
 	}
 
+	return ctx.Status(code).JSON(result)
+}
+
+func ResponsePagination(ctx *fiber.Ctx, data interface{}, message string, meta ResponseMeta, code int) error {
+	success := false
+
+	if code < http.StatusBadRequest {
+		success = true
+	}
+
+	result := BaseResponseModel{
+		Success: success,
+		Data:    data,
+		Message: message,
+		Code:    code,
+		Meta:    &meta,
+	}
 	return ctx.Status(code).JSON(result)
 }
