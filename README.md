@@ -12,7 +12,12 @@ This project using golang with go fiber, firebase, and dependency injection
 1. Install Golang
    See the documentation to install Golang on your computer: [documentation](https://golang.org/doc/install)
 
-2. Running Application
+2. Install Dependency
+   ```bash
+    go mod download
+   ```
+
+4. Running Application
    ```bash
     go run ./src
    ```
